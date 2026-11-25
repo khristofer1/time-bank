@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .vitest/
+gemini/
 
 # Editor directories and files
 .vscode/*
