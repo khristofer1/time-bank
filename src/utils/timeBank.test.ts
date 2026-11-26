@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_CONFIG, type TimeBankState } from '../types/timeBank';
+import {
+  DEFAULT_CONFIG,
+  type TimeBankConfig,
+  type TimeBankState,
+} from '../types/timeBank';
 import {
   capBankSeconds,
+  exitBreakEarly,
   getNextSessionNumber,
   withdrawBankForBreak,
-  exitBreakEarly,
 } from './bankMath';
 import {
   createInitialTimeBankState,
@@ -28,18 +32,52 @@ describe('capBankSeconds', () => {
 });
 
 describe('getNextSessionNumber', () => {
-  it('advances normally on non-final sessions (1 -> 2, 4 -> 5)', () => {
-    expect(getNextSessionNumber(1, 15 * 60, DEFAULT_CONFIG)).toBe(2);
-    expect(getNextSessionNumber(4, 15 * 60, DEFAULT_CONFIG)).toBe(5);
+  const optOutConfig: TimeBankConfig = {
+    ...DEFAULT_CONFIG,
+    holdFinalSessionUntilFullLongBreak: false,
+  };
+
+  const optInConfig: TimeBankConfig = {
+    ...DEFAULT_CONFIG,
+    holdFinalSessionUntilFullLongBreak: true,
+  };
+
+  it('advances non-final sessions when bank is below capacity, even by 1 second', () => {
+    const oneSecondBelowMax = 30 * 60 - 1; // 1799s
+    expect(
+      getNextSessionNumber(1, 15 * 60, oneSecondBelowMax, optOutConfig),
+    ).toBe(2);
+    expect(
+      getNextSessionNumber(4, 15 * 60, oneSecondBelowMax, optInConfig),
+    ).toBe(5);
   });
 
-  it('holds at session 5 when actualAddedSeconds <= shortBreakMinutes (e.g., 3m or 15m)', () => {
-    expect(getNextSessionNumber(5, 3 * 60, DEFAULT_CONFIG)).toBe(5);
-    expect(getNextSessionNumber(5, 15 * 60, DEFAULT_CONFIG)).toBe(5);
+  it('holds ALL non-final sessions (even session 1) when the bank is full', () => {
+    const fullBank = 30 * 60; // 1800s
+    expect(getNextSessionNumber(1, 15 * 60, fullBank, optOutConfig)).toBe(1);
+    expect(getNextSessionNumber(1, 0, fullBank, optInConfig)).toBe(1);
+    expect(getNextSessionNumber(3, 5 * 60, fullBank, optOutConfig)).toBe(3);
   });
 
-  it('resets session 5 -> 1 when actualAddedSeconds > shortBreakMinutes (e.g., 20m)', () => {
-    expect(getNextSessionNumber(5, 20 * 60, DEFAULT_CONFIG)).toBe(1);
+  it('opt-out: holds session 5 when actualAddedSeconds <= shortBreakMinutes (<= 15m)', () => {
+    expect(getNextSessionNumber(5, 3 * 60, 30 * 60, optOutConfig)).toBe(5);
+    expect(getNextSessionNumber(5, 15 * 60, 30 * 60, optOutConfig)).toBe(5);
+  });
+
+  it('opt-out: resets session 5 -> 1 when actualAddedSeconds > shortBreakMinutes (e.g., 20m)', () => {
+    expect(getNextSessionNumber(5, 20 * 60, 30 * 60, optOutConfig)).toBe(1);
+  });
+
+  it('opt-in: holds session 5 whenever actualAddedSeconds < longBreakMinutes (< 30m)', () => {
+    expect(getNextSessionNumber(5, 20 * 60, 30 * 60, optInConfig)).toBe(5);
+    expect(getNextSessionNumber(5, 30 * 60 - 1, 30 * 60 - 1, optInConfig)).toBe(
+      5,
+    );
+    expect(getNextSessionNumber(5, 0, 30 * 60, optInConfig)).toBe(5);
+  });
+
+  it('opt-in: resets session 5 -> 1 when actualAddedSeconds === longBreakMinutes (full 30m)', () => {
+    expect(getNextSessionNumber(5, 30 * 60, 30 * 60, optInConfig)).toBe(1);
   });
 });
 
@@ -95,7 +133,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
     const midBreakState: TimeBankState = {
       ...createInitialTimeBankState(),
       mode: 'break',
-      remainingSeconds: 10 * 60, // 5m spent out of 15m
+      remainingSeconds: 10 * 60,
       isRunning: true,
       bankSeconds: 0,
       savedFocusSeconds: 20 * 60,
@@ -111,7 +149,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
       isRunning: false,
       bankSeconds: 10 * 60,
       savedFocusSeconds: null,
-      canUseBank: false, // Still locked until the remaining 20m focus finishes
+      canUseBank: false,
     });
   });
 
@@ -132,10 +170,10 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
     expect(next).toEqual({
       ...directBreakState,
       mode: 'focus',
-      sessionNumber: 2, // Unchanged on early exit
+      sessionNumber: 2,
       remainingSeconds: 30 * 60,
       isRunning: false,
-      bankSeconds: 30 * 60, // Capped at 30m (+5m)
+      bankSeconds: 30 * 60,
       savedFocusSeconds: null,
     });
   });
@@ -147,7 +185,11 @@ describe('standalone helper guards', () => {
   });
 
   it('reports isResumedFocus accurately in exitBreakEarly', () => {
-    expect(exitBreakEarly(0, 5 * 60, 12 * 60, DEFAULT_CONFIG).isResumedFocus).toBe(true);
-    expect(exitBreakEarly(0, 5 * 60, null, DEFAULT_CONFIG).isResumedFocus).toBe(false);
+    expect(
+      exitBreakEarly(0, 5 * 60, 12 * 60, DEFAULT_CONFIG).isResumedFocus,
+    ).toBe(true);
+    expect(exitBreakEarly(0, 5 * 60, null, DEFAULT_CONFIG).isResumedFocus).toBe(
+      false,
+    );
   });
 });

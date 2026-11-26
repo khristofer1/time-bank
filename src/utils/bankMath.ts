@@ -1,9 +1,9 @@
 import type {
   CapBankResult,
+  ExitBreakResult,
   TimeBankConfig,
   WithdrawBankResult,
-  ExitBreakResult,
-} from "../types/timeBank";
+} from '../types/timeBank';
 
 /**
  * Pure bank-cap math: adds `addedSeconds` into `currentBankSeconds`,
@@ -28,25 +28,35 @@ export function capBankSeconds(
 }
 
 /**
- * Post-focus session progression: advances 1 -> 2 -> ... -> sessionsPerSet -> 1,
- * EXCEPT on the final session when the banked reward is <= shortBreakMinutes,
- * where `sessionNumber` stays held at `sessionsPerSet`.
+ * Post-focus session progression:
+ * 1. Non-final sessions (1 .. sessionsPerSet - 1): hold if the bank is full
+ *    (`nextBankSeconds >= maxBankSeconds`); advance even if 1s below capacity.
+ * 2. Final session (`sessionsPerSet`):
+ *    - Opt-in (`holdFinalSessionUntilFullLongBreak: true`): hold if `actualAddedSeconds < longBreakSeconds`.
+ *    - Opt-out (`holdFinalSessionUntilFullLongBreak: false`): hold if `actualAddedSeconds <= shortBreakSeconds`.
  */
 export function getNextSessionNumber(
   currentSessionNumber: number,
   actualAddedSeconds: number,
+  nextBankSeconds: number,
   config: TimeBankConfig,
 ): number {
+  const maxBankSeconds = config.longBreakMinutes * 60;
+  const longBreakSeconds = config.longBreakMinutes * 60;
   const shortBreakSeconds = config.shortBreakMinutes * 60;
-  const standardNextSession =
-    currentSessionNumber >= config.sessionsPerSet ? 1 : currentSessionNumber + 1;
 
   const isFinalSession = currentSessionNumber === config.sessionsPerSet;
-  const isRewardCappedToShortBreak = actualAddedSeconds <= shortBreakSeconds;
 
-  return isFinalSession && isRewardCappedToShortBreak
-    ? config.sessionsPerSet
-    : standardNextSession;
+  if (!isFinalSession) {
+    const isBankFull = nextBankSeconds >= maxBankSeconds;
+    return isBankFull ? currentSessionNumber : currentSessionNumber + 1;
+  }
+
+  const shouldHoldFinalSession = config.holdFinalSessionUntilFullLongBreak
+    ? actualAddedSeconds < longBreakSeconds
+    : actualAddedSeconds <= shortBreakSeconds;
+
+  return shouldHoldFinalSession ? config.sessionsPerSet : 1;
 }
 
 /**

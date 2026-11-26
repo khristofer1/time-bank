@@ -3,6 +3,7 @@ export interface TimeBankConfig {
   shortBreakMinutes: number;
   longBreakMinutes: number;
   sessionsPerSet: number;
+  holdFinalSessionUntilFullLongBreak: boolean;
 }
 
 export const DEFAULT_CONFIG: TimeBankConfig = {
@@ -10,6 +11,7 @@ export const DEFAULT_CONFIG: TimeBankConfig = {
   shortBreakMinutes: 15,
   longBreakMinutes: 30,
   sessionsPerSet: 5,
+  holdFinalSessionUntilFullLongBreak: false,
 };
 
 export type TimerMode = 'focus' | 'break';
