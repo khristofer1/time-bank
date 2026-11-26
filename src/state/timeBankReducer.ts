@@ -1,4 +1,4 @@
-import { DEFAULT_CONFIG } from '../types/timeBank';
+import { DEFAULT_CONFIG } from '../config/timeBankConfig';
 import {
   withdrawBankForBreak,
   exitBreakEarly,

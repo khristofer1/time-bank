@@ -6,14 +6,6 @@ export interface TimeBankConfig {
   holdFinalSessionUntilFullLongBreak: boolean;
 }
 
-export const DEFAULT_CONFIG: TimeBankConfig = {
-  focusMinutes: 30,
-  shortBreakMinutes: 15,
-  longBreakMinutes: 30,
-  sessionsPerSet: 5,
-  holdFinalSessionUntilFullLongBreak: false,
-};
-
 export type TimerMode = 'focus' | 'break';
 
 export interface CapBankResult {
