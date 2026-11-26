@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { DEFAULT_CONFIG } from '../config/timeBankConfig';
 import {
-  DEFAULT_CONFIG,
   type TimeBankConfig,
   type TimeBankState,
 } from '../types/timeBank';
