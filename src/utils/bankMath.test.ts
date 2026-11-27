@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import type { TimeBankConfig } from '../types/timeBank';
+import { DEFAULT_CONFIG } from '../config/timeBankConfig';
 import {
   capBankSeconds,
   getNextSessionNumber,
   withdrawBankForBreak,
   exitBreakEarly,
 } from './bankMath';
-import type { TimeBankConfig } from '../types/timeBank';
-import { DEFAULT_CONFIG } from '../config/timeBankConfig';
 
 describe('capBankSeconds', () => {
   it('adds full seconds when below maxBankSeconds', () => {
@@ -35,42 +35,34 @@ describe('getNextSessionNumber', () => {
     holdFinalSessionUntilFullLongBreak: true,
   };
 
-  it('advances non-final sessions when bank is below capacity, even by 1 second', () => {
-    const oneSecondBelowMax = 30 * 60 - 1; // 1799s
+  it('advances non-final sessions', () => {
     expect(
-      getNextSessionNumber(1, 15 * 60, oneSecondBelowMax, optOutConfig),
+      getNextSessionNumber(1, 0, optOutConfig),
     ).toBe(2);
     expect(
-      getNextSessionNumber(4, 15 * 60, oneSecondBelowMax, optInConfig),
+      getNextSessionNumber(4, 15 * 60, optInConfig),
     ).toBe(5);
   });
 
-  it('holds ALL non-final sessions (even session 1) when the bank is full', () => {
-    const fullBank = 30 * 60; // 1800s
-    expect(getNextSessionNumber(1, 15 * 60, fullBank, optOutConfig)).toBe(1);
-    expect(getNextSessionNumber(1, 0, fullBank, optInConfig)).toBe(1);
-    expect(getNextSessionNumber(3, 5 * 60, fullBank, optOutConfig)).toBe(3);
-  });
-
   it('opt-out: holds session 5 when actualAddedSeconds <= shortBreakMinutes (<= 15m)', () => {
-    expect(getNextSessionNumber(5, 3 * 60, 30 * 60, optOutConfig)).toBe(5);
-    expect(getNextSessionNumber(5, 15 * 60, 30 * 60, optOutConfig)).toBe(5);
+    expect(getNextSessionNumber(5, 3 * 60, optOutConfig)).toBe(5);
+    expect(getNextSessionNumber(5, 15 * 60, optOutConfig)).toBe(5);
   });
 
   it('opt-out: resets session 5 -> 1 when actualAddedSeconds > shortBreakMinutes (e.g., 20m)', () => {
-    expect(getNextSessionNumber(5, 20 * 60, 30 * 60, optOutConfig)).toBe(1);
+    expect(getNextSessionNumber(5, 20 * 60, optOutConfig)).toBe(1);
   });
 
   it('opt-in: holds session 5 whenever actualAddedSeconds < longBreakMinutes (< 30m)', () => {
-    expect(getNextSessionNumber(5, 20 * 60, 30 * 60, optInConfig)).toBe(5);
-    expect(getNextSessionNumber(5, 30 * 60 - 1, 30 * 60 - 1, optInConfig)).toBe(
+    expect(getNextSessionNumber(5, 20 * 60, optInConfig)).toBe(5);
+    expect(getNextSessionNumber(5, 30 * 60 - 1, optInConfig)).toBe(
       5,
     );
-    expect(getNextSessionNumber(5, 0, 30 * 60, optInConfig)).toBe(5);
+    expect(getNextSessionNumber(5, 0, optInConfig)).toBe(5);
   });
 
   it('opt-in: resets session 5 -> 1 when actualAddedSeconds === longBreakMinutes (full 30m)', () => {
-    expect(getNextSessionNumber(5, 30 * 60, 30 * 60, optInConfig)).toBe(1);
+    expect(getNextSessionNumber(5, 30 * 60, optInConfig)).toBe(1);
   });
 });
 

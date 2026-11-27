@@ -29,8 +29,7 @@ export function capBankSeconds(
 
 /**
  * Post-focus session progression:
- * 1. Non-final sessions (1 .. sessionsPerSet - 1): hold if the bank is full
- *    (`nextBankSeconds >= maxBankSeconds`); advance even if 1s below capacity.
+ * 1. Non-final sessions: advances (1 to [sessionsPerSet - 1])
  * 2. Final session (`sessionsPerSet`):
  *    - Opt-in (`holdFinalSessionUntilFullLongBreak: true`): hold if `actualAddedSeconds < longBreakSeconds`.
  *    - Opt-out (`holdFinalSessionUntilFullLongBreak: false`): hold if `actualAddedSeconds <= shortBreakSeconds`.
@@ -38,18 +37,15 @@ export function capBankSeconds(
 export function getNextSessionNumber(
   currentSessionNumber: number,
   actualAddedSeconds: number,
-  nextBankSeconds: number,
   config: TimeBankConfig,
 ): number {
-  const maxBankSeconds = config.longBreakMinutes * 60;
   const longBreakSeconds = config.longBreakMinutes * 60;
   const shortBreakSeconds = config.shortBreakMinutes * 60;
 
   const isFinalSession = currentSessionNumber === config.sessionsPerSet;
 
   if (!isFinalSession) {
-    const isBankFull = nextBankSeconds >= maxBankSeconds;
-    return isBankFull ? currentSessionNumber : currentSessionNumber + 1;
+    return currentSessionNumber + 1;
   }
 
   const shouldHoldFinalSession = config.holdFinalSessionUntilFullLongBreak
