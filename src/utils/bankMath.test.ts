@@ -27,12 +27,12 @@ describe('capBankSeconds', () => {
 describe('getNextSessionNumber', () => {
   const optOutConfig: TimeBankConfig = {
     ...DEFAULT_CONFIG,
-    holdFinalSessionUntilFullLongBreak: false,
+    strictHold: false,
   };
 
   const optInConfig: TimeBankConfig = {
     ...DEFAULT_CONFIG,
-    holdFinalSessionUntilFullLongBreak: true,
+    strictHold: true,
   };
 
   it('advances non-final sessions', () => {

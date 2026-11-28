@@ -48,7 +48,7 @@ export function getNextSessionNumber(
     return currentSessionNumber + 1;
   }
 
-  const shouldHoldFinalSession = config.holdFinalSessionUntilFullLongBreak
+  const shouldHoldFinalSession = config.strictHold
     ? actualAddedSeconds < longBreakSeconds
     : actualAddedSeconds <= shortBreakSeconds;
 

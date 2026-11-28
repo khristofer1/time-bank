@@ -3,7 +3,7 @@ export interface TimeBankConfig {
   shortBreakMinutes: number;
   longBreakMinutes: number;
   sessionsPerSet: number;
-  holdFinalSessionUntilFullLongBreak: boolean;
+  strictHold: boolean;
 }
 
 export type TimerMode = 'focus' | 'break';
