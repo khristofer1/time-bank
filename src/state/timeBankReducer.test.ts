@@ -5,7 +5,7 @@ import {
   timeBankReducer,
 } from "./timeBankReducer";
 
-describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
+describe('WITHDRAW_BANK_MID_FOCUS', () => {
   it('withdraws bank mid-focus, saves remaining focus, and locks bank access', () => {
     const state: TimeBankState = {
       ...createInitialTimeBankState(),
@@ -48,7 +48,9 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
     };
     expect(timeBankReducer(breakState, { type: 'WITHDRAW_BANK_MID_FOCUS' })).toBe(breakState);
   });
+});
 
+describe('EXIT_BREAK_EARLY', () => {
   it('returns unused break time to bank and restores savedFocusSeconds on EXIT_BREAK_EARLY', () => {
     const midBreakState: TimeBankState = {
       ...createInitialTimeBankState(),
@@ -97,4 +99,4 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
       savedFocusSeconds: null,
     });
   });
-});
+})
