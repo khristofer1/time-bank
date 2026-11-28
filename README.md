@@ -81,13 +81,14 @@ Session advancement for the final session is evaluated as follows:
 ### 5. Exiting a Break Early
 
 * **Banking Unused Time:**
-* Ending any break early deposits all remaining unused break seconds back into the Time Bank, clamped at **maximum bank capacity**.
+* Ending any break early deposits all remaining unused break seconds back into the Time Bank (clamped at **maximum bank capacity**), and locks the bank withdrawal until a focus block is finished.
 * Exiting a break early **never** changes the current session number.
 
 
 * **Next Timer State (Two Cases):**
-* **If resuming an interrupted focus session (mid-focus bank break):** Restores the exact saved remaining focus duration, clears the saved focus remainder, sets the timer to **paused**, and keeps bank withdrawals **locked** until that focus block finishes.
-* **If exiting a standard post-focus break (no saved focus remainder):** Resets the timer to a fresh full focus duration, sets the timer to **paused**, and leaves bank unlock status as-is.
+* **If resuming an interrupted focus session (mid-focus bank break):** Restores the exact saved remaining focus duration and clears the saved focus remainder.
+* **If exiting a standard post-focus break (no saved focus remainder):** Resets the timer to a fresh full focus duration.
+* In either case, the focus timer starts automatically.
 
 
 
