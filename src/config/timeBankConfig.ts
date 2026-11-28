@@ -5,5 +5,5 @@ export const DEFAULT_CONFIG: TimeBankConfig = {
   shortBreakMinutes: 15,
   longBreakMinutes: 30,
   sessionsPerSet: 5,
-  holdFinalSessionUntilFullLongBreak: false,
+  strictHold: false,
 };
