@@ -71,7 +71,7 @@ export function timeBankReducer(
         ...state,
         mode: 'focus',
         remainingSeconds: exitResult.nextFocusSeconds,
-        isRunning: false,
+        isRunning: true,
         bankSeconds: exitResult.nextBankSeconds,
         savedFocusSeconds: exitResult.nextSavedFocusSeconds,
       };

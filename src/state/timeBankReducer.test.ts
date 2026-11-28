@@ -49,7 +49,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
     expect(timeBankReducer(breakState, { type: 'WITHDRAW_BANK_MID_FOCUS' })).toBe(breakState);
   });
 
-  it('returns unused break time to bank and restores paused savedFocusSeconds on EXIT_BREAK_EARLY', () => {
+  it('returns unused break time to bank and restores savedFocusSeconds on EXIT_BREAK_EARLY', () => {
     const midBreakState: TimeBankState = {
       ...createInitialTimeBankState(),
       mode: 'break',
@@ -66,7 +66,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
       ...midBreakState,
       mode: 'focus',
       remainingSeconds: 20 * 60,
-      isRunning: false,
+      isRunning: true,
       bankSeconds: 10 * 60,
       savedFocusSeconds: null,
       canUseBank: false,
@@ -82,7 +82,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
       isRunning: true,
       bankSeconds: 25 * 60,
       savedFocusSeconds: null,
-      canUseBank: true,
+      canUseBank: false,
     };
 
     const next = timeBankReducer(directBreakState, { type: 'EXIT_BREAK_EARLY' });
@@ -92,7 +92,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
       mode: 'focus',
       sessionNumber: 2,
       remainingSeconds: 30 * 60,
-      isRunning: false,
+      isRunning: true,
       bankSeconds: 30 * 60,
       savedFocusSeconds: null,
     });
