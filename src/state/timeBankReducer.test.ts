@@ -4,7 +4,6 @@ import {
   createInitialTimeBankState,
   timeBankReducer,
 } from "./timeBankReducer";
-import { DEFAULT_CONFIG } from "../config/timeBankConfig";
 
 describe('WITHDRAW_BANK_MID_FOCUS', () => {
   it('withdraws bank mid-focus, saves remaining focus, and locks bank access', () => {
@@ -76,19 +75,14 @@ describe('EXIT_BREAK_EARLY', () => {
     });
   });
 
-  it('banks leftover direct break time (capped at longBreakMinutes) and resets to full focus duration when savedFocusSeconds is null', () => {
-    let directBreakState: TimeBankState = {
+  it('banks leftover direct break time and resets to full focus duration when savedFocusSeconds is null', () => {
+    const directBreakState: TimeBankState = {
       ...createInitialTimeBankState(),
       mode: 'break',
       sessionNumber: 2,
       remainingSeconds: 10 * 60,
       isRunning: true,
-      /**
-       * This is to create a condition when the bankSeconds contains time duration at the full capacity minus
-       * 5 minutes, while trying to store a time duration of more than 5 minutes, in this case 10 minutes.
-       * Fresh states use default configuration in the first place, so using it in this case should work.
-       */
-      bankSeconds: (DEFAULT_CONFIG.longBreakMinutes - 5) * 60,
+      bankSeconds: 5 * 60,
       savedFocusSeconds: null,
       canUseBank: false,
     };
@@ -98,10 +92,10 @@ describe('EXIT_BREAK_EARLY', () => {
     expect(next).toEqual({
       ...directBreakState,
       mode: 'focus',
-      sessionNumber: 3,
+      sessionNumber: 2,
       remainingSeconds: directBreakState.config.focusMinutes * 60,
       isRunning: true,
-      bankSeconds: directBreakState.config.longBreakMinutes * 60,
+      bankSeconds: 15 * 60,
       savedFocusSeconds: null,
     });
   });

@@ -2,7 +2,6 @@ import { DEFAULT_CONFIG } from '../config/timeBankConfig';
 import {
   withdrawBankForBreak,
   exitBreakEarly,
-  getNextSessionNumber,
 } from '../utils/bankMath';
 import type {
   TimeBankAction,
@@ -68,14 +67,6 @@ export function timeBankReducer(
         state.config,
       );
 
-      const nextSessionNumber = exitResult.isResumedFocus
-        ? state.sessionNumber
-        : getNextSessionNumber(
-          state.sessionNumber,
-          exitResult.actualAddedSeconds,
-          state.config,
-        );
-
       return {
         ...state,
         mode: 'focus',
@@ -83,7 +74,6 @@ export function timeBankReducer(
         isRunning: true,
         bankSeconds: exitResult.nextBankSeconds,
         savedFocusSeconds: exitResult.nextSavedFocusSeconds,
-        sessionNumber: nextSessionNumber,
       };
     }
 
