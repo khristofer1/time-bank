@@ -35,6 +35,8 @@ describe('getNextSessionNumber', () => {
     strictHold: true,
   };
 
+  const { shortBreakMinutes, sessionsPerSet } = DEFAULT_CONFIG;
+
   it('advances non-final sessions', () => {
     expect(
       getNextSessionNumber(1, 0, optOutConfig),
@@ -44,24 +46,22 @@ describe('getNextSessionNumber', () => {
     ).toBe(5);
   });
 
-  it('opt-out: holds session 5 when actualAddedSeconds <= shortBreakMinutes (<= 15m)', () => {
-    expect(getNextSessionNumber(5, 3 * 60, optOutConfig)).toBe(5);
-    expect(getNextSessionNumber(5, 15 * 60, optOutConfig)).toBe(5);
+  it('opt-out: holds final session when actualAddedSeconds <= shortBreakMinutes', () => {
+    expect(getNextSessionNumber(sessionsPerSet, 3 * 60, optOutConfig)).toBe(5);
+    expect(getNextSessionNumber(sessionsPerSet, 15 * 60, optOutConfig)).toBe(5);
   });
 
-  it('opt-out: resets session 5 -> 1 when actualAddedSeconds > shortBreakMinutes (e.g., 20m)', () => {
-    expect(getNextSessionNumber(5, 20 * 60, optOutConfig)).toBe(1);
+  it('opt-out: resets session sessionsPerSet -> 1 when actualAddedSeconds > shortBreakMinutes', () => {
+    expect(getNextSessionNumber(5, shortBreakMinutes * 60 + 1, optOutConfig)).toBe(1);
   });
 
-  it('opt-in: holds session 5 whenever actualAddedSeconds < longBreakMinutes (< 30m)', () => {
+  it('opt-in: holds session 5 whenever actualAddedSeconds < longBreakMinutes', () => {
     expect(getNextSessionNumber(5, 20 * 60, optInConfig)).toBe(5);
-    expect(getNextSessionNumber(5, 30 * 60 - 1, optInConfig)).toBe(
-      5,
-    );
+    expect(getNextSessionNumber(5, 30 * 60 - 1, optInConfig)).toBe(5);
     expect(getNextSessionNumber(5, 0, optInConfig)).toBe(5);
   });
 
-  it('opt-in: resets session 5 -> 1 when actualAddedSeconds === longBreakMinutes (full 30m)', () => {
+  it('opt-in: resets session 5 -> 1 when actualAddedSeconds === longBreakMinutes', () => {
     expect(getNextSessionNumber(5, 30 * 60, optInConfig)).toBe(1);
   });
 });
@@ -72,11 +72,7 @@ describe('standalone helper guards', () => {
   });
 
   it('reports isResumedFocus accurately in exitBreakEarly', () => {
-    expect(
-      exitBreakEarly(0, 5 * 60, 12 * 60, DEFAULT_CONFIG).isResumedFocus,
-    ).toBe(true);
-    expect(exitBreakEarly(0, 5 * 60, null, DEFAULT_CONFIG).isResumedFocus).toBe(
-      false,
-    );
+    expect(exitBreakEarly(0, 5 * 60, 12 * 60, DEFAULT_CONFIG).isResumedFocus).toBe(true);
+    expect(exitBreakEarly(0, 5 * 60, null, DEFAULT_CONFIG).isResumedFocus).toBe(false);
   });
 });

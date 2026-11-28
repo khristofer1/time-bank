@@ -37,9 +37,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
       bankSeconds: 10 * 60,
       canUseBank: false,
     };
-    expect(
-      timeBankReducer(lockedState, { type: 'WITHDRAW_BANK_MID_FOCUS' }),
-    ).toBe(lockedState);
+    expect(timeBankReducer(lockedState, { type: 'WITHDRAW_BANK_MID_FOCUS' })).toBe(lockedState);
 
     const breakState: TimeBankState = {
       ...createInitialTimeBankState(),
@@ -48,9 +46,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
       bankSeconds: 10 * 60,
       canUseBank: true,
     };
-    expect(
-      timeBankReducer(breakState, { type: 'WITHDRAW_BANK_MID_FOCUS' }),
-    ).toBe(breakState);
+    expect(timeBankReducer(breakState, { type: 'WITHDRAW_BANK_MID_FOCUS' })).toBe(breakState);
   });
 
   it('returns unused break time to bank and restores paused savedFocusSeconds on EXIT_BREAK_EARLY', () => {
