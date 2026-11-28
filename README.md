@@ -82,7 +82,7 @@ Session advancement for the final session is evaluated as follows:
 
 * **Banking Unused Time:**
 * Ending any break early deposits all remaining unused break seconds back into the Time Bank (clamped at **maximum bank capacity**), and locks the bank withdrawal until a focus block is finished.
-* Exiting a break early **never** changes the current session number.
+* Exiting a break early doesn't change the current session number if the user resumes a previously saved focus timer. If not, it uses the standard final session hold/reset rules.
 
 
 * **Next Timer State (Two Cases):**

@@ -73,7 +73,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
     });
   });
 
-  it('banks leftover direct break time (capped at 30m) and resets to full focus duration when savedFocusSeconds is null', () => {
+  it('banks leftover direct break time (capped at longBreakMinutes) and resets to full focus duration when savedFocusSeconds is null', () => {
     const directBreakState: TimeBankState = {
       ...createInitialTimeBankState(),
       mode: 'break',
@@ -90,7 +90,7 @@ describe('timeBankReducer: WITHDRAW_BANK_MID_FOCUS & EXIT_BREAK_EARLY', () => {
     expect(next).toEqual({
       ...directBreakState,
       mode: 'focus',
-      sessionNumber: 2,
+      sessionNumber: 3,
       remainingSeconds: 30 * 60,
       isRunning: true,
       bankSeconds: 30 * 60,

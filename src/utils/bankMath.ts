@@ -78,9 +78,9 @@ export function withdrawBankForBreak(
 }
 
 /**
- * Early break exit: banks any unused break seconds via `capBankSeconds`
- * without changing `sessionNumber`, then either restores `savedFocusSeconds`
- * (mid-focus bank break) or starts a fresh focus block (direct post-focus break).
+ * Early break exit: banks any unused break seconds via `capBankSeconds`,
+ * then either restores `savedFocusSeconds` (mid-focus bank break)
+ * or starts a fresh focus block (direct post-focus break).
  */
 export function exitBreakEarly(
   currentBankSeconds: number,
